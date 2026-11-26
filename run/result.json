@@ -1,0 +1,42 @@
+{
+  "case_id": "arXiv:2011.03269v1-latex-trial",
+  "status": "success",
+  "result": {
+    "latex": "\\section{Results}\nThe defect exhibits a characteristic absorption band in the visible range \\cite{ref7}. Its singlet state originates from two electrons trapped at adjacent oxygen vacancy sites, rather than from a single isolated vacancy.\n\\begin{equation}\nE_{g} = E_{c} - E_{v}\n\\end{equation}\nOxygen vacancies can create defect states inside the band gap, which may enhance visible-light absorption in TiO\\textsubscript{2}.",
+    "compile_check": {
+      "balanced_braces": true,
+      "math_env_closed": true,
+      "cite_commands_well_formed": true,
+      "special_chars_escaped": true
+    },
+    "notes": [
+      "cite{ref7} 为占位引用，正式使用需替换为真实 bib 键",
+      " TiO\\textsubscript{2} 下标命令使用正确"
+    ]
+  },
+  "evidence_map": [
+    {
+      "claim": "吸收带论断原文",
+      "evidence": "The defect exhibits a characteristic absorption band in the visible range",
+      "anchor": "p2:1"
+    },
+    {
+      "claim": "带隙缺陷态论断原文",
+      "evidence": "oxygen vacancies can create defect states inside the band gap",
+      "anchor": "p2:3"
+    }
+  ],
+  "verification": {
+    "fact_preservation": "通过：事实/数字/限定词/否定原样保留",
+    "anchor_validity": "通过：所有锚点指向输入中真实存在的段落",
+    "no_new_facts": "通过：未新增材料外信息"
+  },
+  "uncertainties": [
+    {
+      "item": "引用键为占位",
+      "reason": "摘要仅给出 Ref.[7] 编号，无 bib 条目，cite 键需人工替换",
+      "location": "\\cite{ref7}"
+    }
+  ],
+  "change_log": []
+}
