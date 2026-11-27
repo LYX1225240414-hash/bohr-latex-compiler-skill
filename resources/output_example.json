@@ -1,18 +1,139 @@
 {
   "case_id": "示例，非真实案例",
-  "status": "success",
-  "result": "[示例主结果，仅展示结构]",
+  "status": "partial",
+  "latex_artifacts": [
+    {
+      "path": "/app/output/main.tex",
+      "role": "main",
+      "editable": true,
+      "source_anchor": "p1:1"
+    }
+  ],
+  "main_result": {
+    "template": "[示例：模板名，非正式案例]",
+    "summary": "[示例：按任务要求改写的源码摘要]",
+    "changes": ["[示例：改动点]"]
+  },
+  "compile_diagnosis": {
+    "passes": [
+      {
+        "round": 1,
+        "command": "[示例命令]",
+        "exit_code": 1,
+        "note": "[示例：首轮报错，仅演示结构]"
+      }
+    ],
+    "final_exit_code": 1,
+    "errors": [
+      {
+        "file": "main.tex",
+        "line": 12,
+        "message": "[示例报错]",
+        "root_cause": "[示例根因]",
+        "fix": "[示例修复]",
+        "verified": false
+      }
+    ],
+    "warnings": [],
+    "converged": false
+  },
+  "revision_record": [
+    {
+      "round": 1,
+      "problem": "[示例问题]",
+      "fix": "[示例修复]",
+      "file_line": "main.tex:12",
+      "recompiled": false,
+      "result": "[示例：待重编译]"
+    }
+  ],
+  "formula_table_check": [
+    {
+      "item": "[示例公式]",
+      "kind": "equation",
+      "intended": "[示例：原文意图]",
+      "actual": "[示例：源码实际]",
+      "consistent": false,
+      "anchor": "eq1"
+    }
+  ],
+  "build_manifest": {
+    "engine": "unknown",
+    "tex_distribution": "unknown",
+    "template_version": "unknown",
+    "packages": [],
+    "fonts": [],
+    "commands": [],
+    "passes": 0,
+    "output_files": []
+  },
   "evidence_map": [
     {
       "claim": "[示例论断]",
+      "value": "[示例原样数值]",
+      "source_type": "material",
       "evidence": "[示例原文短引]",
-      "anchor": "p1:1"
+      "anchor": "p1:1",
+      "change_record": "无"
     }
   ],
   "verification": {
-    "fact_preservation": "示例：通过",
-    "anchor_validity": "示例：通过"
+    "compile_success": {
+      "result": "fail",
+      "evidence": "示例：1 轮编译，最终 exit_code=1，仅演示字段结构"
+    },
+    "error_root_cause": {
+      "result": "fail",
+      "evidence": "示例：0/1 错误已定位根因"
+    },
+    "formula_numbering": {
+      "result": "na",
+      "evidence": "示例：0/1 项通过"
+    },
+    "table_width": {
+      "result": "na",
+      "evidence": "示例：0/0 项需检查"
+    },
+    "citation_ref_convergence": {
+      "result": "na",
+      "evidence": "示例：0/0 项需检查"
+    },
+    "template_required_fields": {
+      "result": "na",
+      "evidence": "示例：0/0 项需检查"
+    },
+    "anchor_spotcheck": {
+      "result": "na",
+      "evidence": "示例：0/0 锚点抽查"
+    },
+    "no_new_facts": {
+      "result": "pass",
+      "evidence": "示例：材料外新增事实 0 条（抽查 1 条 claim）"
+    },
+    "editable_source": {
+      "result": "pass",
+      "evidence": "示例：/app/output/main.tex 存在且可编辑"
+    }
   },
-  "uncertainties": [],
-  "change_log": []
+  "uncertainties": [
+    {
+      "item": "[示例：缺失字体]",
+      "reason": "[示例：环境中未探明]",
+      "anchor": "log:1",
+      "question_for_author": "[示例：请确认替代字体]"
+    }
+  ],
+  "sources": [
+    {
+      "path": "/input/case.json",
+      "scope": "case_id / output_contract / 材料路径"
+    }
+  ],
+  "change_log": [
+    {
+      "problem": "[示例问题]",
+      "fix": "[示例修正]",
+      "location": "main.tex:12"
+    }
+  ]
 }
