@@ -1,15 +1,27 @@
-# 最小调用示例（示意）
+# 最小调用示例（示意，非正式案例）
 
-仅字段结构演示，非正式案例答案。
+本示例仅演示接口与字段结构，不代表任何真实科研案例的 LaTeX 源码、编译日志或评测结果。
 
 ## 输入
-```text
-撰写结构正确可编译的 LaTeX 片段并保留引用与公式，供 Agent 在完成 LaTeX 任务时使用
-[此处粘贴材料]
+
+```json
+{
+  "case_id": "示意-case-001",
+  "task": "根据给定论文片段与模板改写为可编译的 LaTeX 段落，保留公式编号与引用来源",
+  "materials": ["paper_excerpt.md", "template.cls", "refs.bib"],
+  "output_contract": {"case_id": "string", "status": "string", "latex_artifacts": "array"}
+}
 ```
 
-## 调用
-在 Agent 中加载本目录，按 SKILL.md 6 步执行，输出 result.json。
+实际评测时输入为 `/input/case.json` 与 `/input/task.md`，材料路径以其中字段为准。
 
-## 说明
-示意输出见 ../resources/output_example.json。真实评测由平台用固定案例运行。
+## 调用
+
+1. 在 Agent 中加载本 Skill（安装位置 `/skills/weekly-skill`）。
+2. 按 SKILL.md 第 0–6 步执行：先写骨架与最小可编译 `.tex` 到 `/app/output`，再增量完善。
+3. 用 `resources/latex_playbook.md` 做编译—定位—回修闭环，用 `resources/checklist.md` 做带计数自检。
+4. 输出 `/app/output/result.json`、`main.tex`、`changes.patch`、`compile_log.txt`、`build_manifest.md`、`evidence_map.md`。
+
+## 示意输出
+
+字段结构见 `../resources/output_example.json`；其中所有取值均为占位示例，`status` 为 `partial`，不得当作正式案例答案或评测结果。
