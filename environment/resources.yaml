@@ -1,10 +1,11 @@
 name: latex-writer
-version: 1.2.0
+version: 1.3.0
 entrypoint: ../SKILL.md
 bundle_root: ..
 description: >
   LaTeX 写作与编译 Skill 的资源清单。执行内核为 resources/scripts/tex_lint.py，
-  在无 LaTeX 发行版的沙箱里做静态检查，把多数编译错误在真编译前就消掉。
+  init 先落盘合同骨架；在无 LaTeX 发行版的沙箱里做静态检查，
+  把多数编译错误在真编译前就消掉。
 
 resources:
   - path: resources/scripts/tex_lint.py
