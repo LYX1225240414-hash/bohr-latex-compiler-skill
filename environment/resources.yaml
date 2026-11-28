@@ -1,0 +1,55 @@
+name: latex-writer
+version: 1.1.0
+entrypoint: ../SKILL.md
+bundle_root: ..
+description: >
+  LaTeX 写作与编译 Skill 的资源清单。执行内核为 resources/scripts/tex_lint.py，
+  在无 LaTeX 发行版的沙箱里做静态检查，把多数编译错误在真编译前就消掉。
+
+resources:
+  - path: resources/scripts/tex_lint.py
+    kind: executable
+    runtime: python3
+    entry: "python3 resources/scripts/tex_lint.py"
+    subcommands: [check, labels]
+    requires: []          # 纯标准库，无需 LaTeX
+    checks:
+      errors: ["环境未闭合/嵌套不匹配", "花括号不平衡", "缺 documentclass/begin{document}",
+               "tabular 列数与 & 不符", "label 重复", "cite key 不在 bib"]
+      warnings: ["行内 $ 未闭合", "悬空 ref", "特殊字符未转义", "中文缺 ctex/xeCJK"]
+      infos: ["未使用的 label", "includegraphics 路径"]
+    inputs: ["/app/work/main.tex", "可选 --bib /app/work/refs.bib"]
+    outputs: ["/app/work/tex_report.json", "/app/work/tex_report.md"]
+    outputs_note: >
+      tex_report.json 的 verification_hint 给出 compile_readiness / reference_integrity /
+      label_uniqueness / structure_validity 四项计数口径。
+
+  - path: resources/latex_playbook.md
+    kind: doc
+    purpose: 编译命令、错误分类→根因→修复策略、引用收敛与复现清单模板
+
+  - path: resources/checklist.md
+    kind: doc
+    purpose: 带计数的自检清单
+
+  - path: resources/field_dict.md
+    kind: doc
+    purpose: 字段字典、锚点格式与 verification 计数项
+
+  - path: resources/output_example.json
+    kind: sample
+    purpose: 输出结构示意（占位，非答案）
+
+  - path: examples/README.md
+    kind: doc
+    purpose: 最小调用示例与完整步骤
+
+runtime:
+  python: ">=3.9"
+  network: not_required
+  latex:
+    optional_engines: [pdflatex, xelatex, lualatex, latexmk]
+    note: >
+      静态检查不需要任何 LaTeX 引擎；真编译需要模板指定的引擎。
+      若镜像无引擎，按 SKILL.md 第 4 步第 6 条：不伪造编译成功，
+      交付静态通过的可编译源码并标 partial，记录 engine_unavailable。
