@@ -74,16 +74,38 @@ description: 面向 LaTeX 写作与编译任务的 Agent Skill：从真实论文
 - 模板：逐项补齐标题、作者、摘要、关键词等必填项，缺失项标 `[待作者确认]` 并写 uncertainties。
 
 ### 第 4 步：编译—定位—回修闭环（编译得通）
-用 `resources/latex_playbook.md` 的错误分类表执行，禁止"看到第一条错误就停下"：
+
+**先进静态预检，再真编译**。很多编译错误在无 LaTeX 环境时也能静态发现，先扫一遍能把"编译—改—再编译"的轮次压到最少：
+
+```bash
+T=/skills/weekly-skill/resources/scripts/tex_lint.py
+python3 "$T" check  --tex /app/work/main.tex --bib /app/work/refs.bib --out /app/work
+cat /app/work/tex_report.md
+```
+
+| 级别 | 典型问题 | 处理 |
+|---|---|---|
+| error | 环境未闭合/嵌套不匹配、花括号不平衡、缺 `\documentclass`/`\begin{document}`、tabular 列数与 `&` 不符、`\label` 重复、bib 中无此 `\cite` key | 必须全部改到 0 再编译 |
+| warning | 行内 `$` 未闭合、`\ref` 无对应 `\label`、特殊字符 `_ # ^` 未转义、含中文但未加载 ctex/xeCJK | 逐条确认：真问题就改，误报就记入 change_log |
+| info | 未被引用的 `\label`、`\includegraphics` 路径 | 按需处理 |
+
+`labels` 子命令可单独导出 `\cite`/`\label`/`\ref` 对照表，便于人工核对引用是否收敛：
+```bash
+python3 "$T" labels --tex /app/work/main.tex --bib /app/work/refs.bib
+```
+
+静态通过后，用 `resources/latex_playbook.md` 的错误分类表执行真编译，禁止"看到第一条错误就停下"：
 1. 在 `/app/work` 以 `-interaction=nonstopmode -file-line-error` 调用实际引擎（pdflatex/xelatex/lualatex，按模板选择），完整输出写入 `/app/output/compile_log.txt`。
 2. 对每条错误记录 `file:line`、原始报错、**根因**与修复动作；按根因分类（宏包缺失、命令未定义、参数失控、文件缺失、字体缺失、引用/编号未收敛、表格溢出、模板冲突、权限）逐条处理，一条修复后可引发后续错误，需重新编译继续查。
 3. 交叉引用与参考文献按引擎要求重复 2–3 遍直到 `\ref`/`\cite` 全部解析、`Rerun` 提示消失；把每轮退出码与轮次写入 `compile_diagnosis.passes`。
 4. 每次修复更新 `/app/output/changes.patch` 与 `revision_record`，并增量写回 `result.json`。
 5. 若环境确实缺宏包/字体/类文件且无法安装，不伪造成功：`status: partial`，保留最小可编译回退源码，写清缺失项与人工接管位置。
+6. 若环境完全没有 LaTeX 引擎：**不得伪造编译成功**。写明"环境无引擎"，改为交付静态检查通过的可编译源码，`status: partial`，并在 `compile_diagnosis` 记录 `engine_unavailable`。
 
 ### 第 5 步：带计数的自检（复现得了）
-逐项核对 `resources/checklist.md`，把**计数**写进 `verification`：
-- `compile_success`：最终轮次 exit code 与日志证据；`error_root_cause`：已定位根因的错误数 / 错误总数；
+逐项核对 `resources/checklist.md`，把**计数**写进 `verification`（静态项优先用 `tex_report.json` 的 `verification_hint`）：
+- `compile_success`：最终轮次 exit code 与日志证据；若引擎不可用则写 `na` 并说明；
+- `error_root_cause`：已定位根因的错误数 / 错误总数（静态错误应为 0 才进入编译）；
 - `formula_numbering` / `table_width` / `citation_ref_convergence` / `template_required_fields`：通过项 / 检查项，附抽查片段；
 - `anchor_spotcheck`：按锚点回查成功数 / 抽查数；`no_new_facts`：材料外新增事实数（必须为 0）；`editable_source`：`/app/output` 下真实可编辑 `.tex` 路径。
 失败项回到第 3–4 步修正并记入 `change_log`；仍无法解决则保留 `partial`，不得把失败写成通过。
@@ -105,11 +127,30 @@ description: 面向 LaTeX 写作与编译任务的 Agent Skill：从真实论文
 
 ## 资源
 
+- `resources/scripts/tex_lint.py`：**执行内核**。`check` 静态检出环境未闭合、花括号不平衡、`$` 未闭合、缺文档结构、tabular 列数不符、重复 `\label`、悬空 `\cite`/`\ref`、特殊字符未转义、中文缺 ctex；`labels` 导出引用对照表。纯标准库，不需要 LaTeX 发行版。
+- `environment/resources.yaml`：资源清单、依赖、引擎选择与产物说明。
 - `resources/latex_playbook.md`：编译命令、错误分类 → 根因 → 修复策略、引用收敛与复现清单模板。
 - `resources/checklist.md`：带计数的自检清单。
 - `resources/field_dict.md`：字段字典、锚点格式与 verification 计数项。
 - `resources/output_example.json`：输出结构示意（占位示例，非答案）。
 - `examples/README.md`：最小调用示例（示意）。
+
+## 最小示例（示意，非真实案例）
+
+```bash
+T=/skills/weekly-skill/resources/scripts/tex_lint.py
+python3 "$T" check  --tex /app/work/main.tex --bib /app/work/refs.bib --out /app/work
+python3 "$T" labels --tex /app/work/main.tex --bib /app/work/refs.bib
+cat /app/work/tex_report.md
+```
+
+示意输出（仅结构）：
+
+```json
+{"errors": 0, "warnings": 2, "infos": 3, "cites": 24, "labels": 11, "refs": 19, "environments": 9}
+```
+
+真正的结果必须来自本次实际运行，示意输出不得冒充正式案例答案。
 
 ## 最小示例
 
