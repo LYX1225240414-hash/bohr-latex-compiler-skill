@@ -18,9 +18,10 @@
 ## 调用
 
 1. 在 Agent 中加载本 Skill（安装位置 `/skills/weekly-skill`）。
-2. 按 SKILL.md 第 0–6 步执行：先写骨架与最小可编译 `.tex` 到 `/app/output`，再增量完善。
-3. 用 `resources/latex_playbook.md` 做编译—定位—回修闭环，用 `resources/checklist.md` 做带计数自检。
-4. 输出 `/app/output/result.json`、`main.tex`、`changes.patch`、`compile_log.txt`、`build_manifest.md`、`evidence_map.md`。
+2. 先执行 `python3 /skills/weekly-skill/resources/scripts/tex_lint.py init --case /input/case.json --out /app/output` 落盘合同骨架（`status: partial`，空占位不是答案）。
+3. 按 SKILL.md 第 0–6 步执行：写最小可编译 `.tex` 到 `/app/output`，再用 `tex_lint.py check` / `labels` 做静态预检，增量完善。
+4. 用 `resources/latex_playbook.md` 做编译—定位—回修闭环，用 `resources/checklist.md` 做带计数自检。
+5. 输出 `/app/output/result.json`、`main.tex`、`changes.patch`、`compile_log.txt`、`build_manifest.md`、`evidence_map.md`。
 
 ## 示意输出
 
