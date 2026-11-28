@@ -127,7 +127,7 @@ python3 "$T" labels --tex /app/work/main.tex --bib /app/work/refs.bib
 
 ## 资源
 
-- `resources/scripts/tex_lint.py`：**执行内核**。`check` 静态检出环境未闭合、花括号不平衡、`$` 未闭合、缺文档结构、tabular 列数不符、重复 `\label`、悬空 `\cite`/`\ref`、特殊字符未转义、中文缺 ctex；`labels` 导出引用对照表。纯标准库，不需要 LaTeX 发行版。
+- `resources/scripts/tex_lint.py`：**执行内核**。`check` 静态检出环境未闭合、花括号不平衡、`$` 未闭合、缺文档结构、tabular 列数不符、重复 `\label`、悬空 `\cite`/`\ref`、特殊字符未转义、中文缺 ctex；`labels` 导出引用对照表。`--out` 可传目录（写入约定文件名）或直接传文件名，两种写法都不会报错。纯标准库，不需要 LaTeX 发行版。
 - `environment/resources.yaml`：资源清单、依赖、引擎选择与产物说明。
 - `resources/latex_playbook.md`：编译命令、错误分类 → 根因 → 修复策略、引用收敛与复现清单模板。
 - `resources/checklist.md`：带计数的自检清单。
