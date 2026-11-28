@@ -29,6 +29,24 @@ import re
 import sys
 from pathlib import Path
 
+
+def _as_outfile(p, default_name):
+    """--out 兼容层：传目录则写入目录下 default_name，传文件名则直接写该文件。"""
+    path = Path(p)
+    if path.is_dir() or not path.suffix:
+        path = path / default_name
+    path.parent.mkdir(parents=True, exist_ok=True)
+    return path
+
+
+def _as_outdir(p):
+    """--out 兼容层：传的是文件名时取其父目录，避免把文件路径当目录用而崩溃。"""
+    path = Path(p)
+    if path.suffix.lower() in (".json", ".md", ".txt", ".yaml", ".yml", ".csv", ".tex", ".bib"):
+        path = path.parent if str(path.parent) not in ("", ".") else Path(".")
+    path.mkdir(parents=True, exist_ok=True)
+    return path
+
 BEGIN = re.compile(r"\\begin\s*\{([^}]+)\}")
 END = re.compile(r"\\end\s*\{([^}]+)\}")
 LABEL = re.compile(r"\\label\s*\{([^}]+)\}")
@@ -336,7 +354,7 @@ def cmd_check(args):
             "structure_validity": f"环境 {stats['environments']} 类；结构错误 {len([e for e in errors if '\\begin' in e.get('msg','') or '\\end' in e.get('msg','')])} 条",
         },
     }
-    out = Path(args.out)
+    out = _as_outdir(args.out)
     out.mkdir(parents=True, exist_ok=True)
     (out / "tex_report.json").write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
     md = ["# LaTeX 静态检查报告", "",
