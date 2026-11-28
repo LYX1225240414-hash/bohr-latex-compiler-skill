@@ -1,5 +1,5 @@
 name: latex-writer
-version: 1.1.0
+version: 1.2.0
 entrypoint: ../SKILL.md
 bundle_root: ..
 description: >
@@ -53,3 +53,6 @@ runtime:
       静态检查不需要任何 LaTeX 引擎；真编译需要模板指定的引擎。
       若镜像无引擎，按 SKILL.md 第 4 步第 6 条：不伪造编译成功，
       交付静态通过的可编译源码并标 partial，记录 engine_unavailable。
+
+changelog:
+  - "1.2.0: --out 兼容目录或文件名，避免传文件路径时建出同名目录。"
