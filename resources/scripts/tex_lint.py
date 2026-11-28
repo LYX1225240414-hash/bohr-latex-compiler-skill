@@ -386,14 +386,78 @@ def cmd_labels(args):
     return 0
 
 
+
+def _blank_contract_value(v):
+    """合同字段的空占位：形状对、内容空，绝不复制合同示例当作答案。"""
+    if isinstance(v, dict):
+        return {}
+    if isinstance(v, list):
+        return []
+    if isinstance(v, bool):
+        return False
+    if isinstance(v, (int, float)):
+        return 0
+    return ""
+
+def cmd_init(args):
+    """读真实 case.json，先落盘含全部合同字段的 partial result.json 骨架。"""
+    try:
+        case = json.loads(Path(args.case).read_text(encoding="utf-8"))
+    except Exception as exc:
+        print(json.dumps({"ok": False, "error": "case.json 无法读取: %s" % exc}, ensure_ascii=False))
+        return 1
+    if not isinstance(case, dict):
+        print(json.dumps({"ok": False, "error": "case.json 顶层必须是对象"}, ensure_ascii=False))
+        return 1
+    contract = case.get("output_contract") or {}
+    if not isinstance(contract, dict):
+        contract = {}
+    skeleton = {
+        "case_id": case.get("case_id", "N/A"),
+        "status": "partial",
+        "latex_artifacts": [],
+        "main_result": {},
+        "compile_diagnosis": {"passes": [], "final_exit_code": None, "errors": [],
+                              "warnings": [], "converged": False},
+        "revision_record": [],
+        "formula_table_check": [],
+        "build_manifest": {"engine": "unknown", "tex_distribution": "unknown",
+                           "template_version": "unknown", "packages": [], "fonts": [],
+                           "commands": [], "passes": [], "output_files": []},
+        "evidence_map": [],
+        "verification": {k: {"result": "na", "evidence": "pending"} for k in
+                         ["compile_success", "error_root_cause", "formula_numbering", "table_width",
+                          "citation_ref_convergence", "template_required_fields", "anchor_spotcheck",
+                          "no_new_facts", "editable_source"]},
+        "uncertainties": [],
+        "sources": [str(args.case)],
+        "change_log": [{"issue": "initialized", "fix": "先写合同骨架，源码与编译结果待真实运行填充",
+                        "location": "result.json", "verified": "file exists"}],
+
+    }
+    for key, value in contract.items():
+        if key not in skeleton or skeleton[key] in (None, "", [], {}):
+            skeleton[key] = _blank_contract_value(value)
+    skeleton["contract_values"] = contract
+    outdir = _as_outdir(args.out)
+    target = outdir / "result.json"
+    target.write_text(json.dumps(skeleton, ensure_ascii=False, indent=2), encoding="utf-8")
+    print(json.dumps({"ok": True, "case_id": skeleton["case_id"],
+                      "contract_fields": len(contract), "status": "partial", "out": str(target)},
+                     ensure_ascii=False))
+    return 0
+
+
 def main():
     ap = argparse.ArgumentParser(description="LaTeX 源码静态检查")
     sub = ap.add_subparsers(dest="cmd", required=True)
+
+    ini = sub.add_parser("init"); ini.add_argument("--case", required=True); ini.add_argument("--out", required=True)
     s1 = sub.add_parser("check"); s1.add_argument("--tex", required=True)
     s1.add_argument("--bib"); s1.add_argument("--out", required=True)
     s2 = sub.add_parser("labels"); s2.add_argument("--tex", required=True); s2.add_argument("--bib")
     a = ap.parse_args()
-    return {"check": cmd_check, "labels": cmd_labels}[a.cmd](a) or 0
+    return {"check": cmd_check, "labels": cmd_labels, "init": cmd_init}[a.cmd](a) or 0
 
 
 if __name__ == "__main__":
